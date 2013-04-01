@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +28,8 @@ public class RequestManager {
     public RequestManager(File cacheDir, Bus bus) {
         mCacheDir = cacheDir;
         mBus      = bus;
+
+        mBus.register(this);
     }
 
     public <T> Response<T> get(Request<T> request, boolean fetchIfNotFound) {
@@ -120,6 +123,11 @@ public class RequestManager {
                 }
             }
         }
+    }
+
+    @Subscribe
+    public void onRequest(Request request) {
+      fetch(request);
     }
 
     private boolean markRequestStarted(Request request) {
@@ -268,7 +276,7 @@ public class RequestManager {
 
     private <T> void postResponse(Request<T> request, Response<T> response) {
         if (!response.success()) {
-            Log.e(TAG, String.format("Request failed (%s): %s", request), response.getError());
+            Log.e(TAG, String.format("Request failed (%s)", request), response.getError());
         }
         mBus.post(response);
         markRequestComplete(request);
