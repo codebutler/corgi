@@ -1,5 +1,7 @@
 package com.codebutler.corgi;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.io.OutputStream;
 import java.util.Date;
 
@@ -58,7 +60,9 @@ public abstract class Response<T> {
         return CachePolicy.NO_CACHE;
     }
 
-    public abstract void write(OutputStream stream) throws Exception;
+    public void write(OutputStream stream) throws Exception {
+        throw new NotImplementedException();
+    }
 
     public boolean isValid() {
         long expiresAt = getDate().getTime() + getCachePolicy().getMaxAge();
