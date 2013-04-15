@@ -56,7 +56,7 @@ public class RequestManager {
     }
 
     public <T> void fetch(final Request<T> request) {
-        fetch(request, false);
+        fetch(request, request.ignoreCache());
     }
 
     public <T> void fetch(final Request<T> request, boolean ignoreCache) {
@@ -74,32 +74,37 @@ public class RequestManager {
         synchronized (mCache) {
             Response response = mCache.get(key);
             if (response != null) {
-                Log.d(TAG, "MEM HIT:   " + key);
                 if (response.isValid()) {
                     if (!response.getCachePolicy().shouldKeepInMemory()) {
                         mCache.remove(key);
                     }
+                    Log.d(TAG, "MEM HIT:   " + request + " " + key);
                     postResponse(request, response);
                     return;
                 } else {
-                    // FIXME: Also remove from disk cache, if found...
-                    mCache.remove(key);
+                    Log.d(TAG, "MEM INVAL  " + request + " " + key);
+                    removeCache(request.getCachePath());
                 }
             } else {
-                Log.d(TAG, "MEM MISS:  " + key);
+                Log.d(TAG, "MEM MISS:   " + request + " " + key);
             }
         }
 
-        Log.d(TAG, "DISK CHECK: " + request.getCachePath());
+        Log.d(TAG, "DISK CHECK: " + request + " " + request.getCachePath());
         checkDiskCache(request, new ResponseCallback<T>() {
             @Override
             public void onResponse(Response<T> response) {
                 if (response != null) {
-                    Log.d(TAG, "DISK HIT:  " + request.getCachePath() + " " + response);
-                    putMemCache(request.getCachePath(), response);
-                    postResponse(request, response);
+                    if (response.isValid()) {
+                        Log.d(TAG, "DISK HIT:   " + request + " " + request.getCachePath() + " " + response);
+                        putMemCache(request.getCachePath(), response);
+                        postResponse(request, response);
+                    } else {
+                        Log.d(TAG, "DISK INVAL: " + request + " " + request.getCachePath() + " " + response);
+                        removeCache(request.getCachePath());
+                    }
                 } else {
-                    Log.d(TAG, "DISK MISS: " + request.getCachePath());
+                    Log.d(TAG, "DISK MISS:  " + request + " " + request.getCachePath());
                     fetchResponse(request);
                 }
             }
@@ -182,7 +187,7 @@ public class RequestManager {
                                 }
                             }
                         } catch (Throwable e) {
-                            Log.e(TAG, "Error reading disk cache for: " + request.getCachePath(), e);
+                            Log.e(TAG, "Error reading disk cache for: " + request + " " + request.getCachePath(), e);
                             if (file != null && file.exists()) {
                                 file.delete();
                             }
@@ -201,7 +206,7 @@ public class RequestManager {
     }
 
     private <T> void fetchResponse(final Request<T> request) {
-        Log.d(TAG, "FETCH:     " + request.getCachePath());
+        Log.d(TAG, "FETCH:      " + request + " " + request.getCachePath());
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -231,7 +236,7 @@ public class RequestManager {
     private <T> void putMemCache(CachePath cachePath, Response<T> response) {
         if (response.getCachePolicy().getMaxAge() > 0) {
             synchronized (mCache) {
-                Log.d(TAG, "MEM PUT:   " + cachePath.toString());
+                Log.d(TAG, "MEM PUT:    " + cachePath.toString());
                 mCache.put(cachePath.toString(), response);
             }
         }
@@ -245,7 +250,7 @@ public class RequestManager {
                     AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... voids) {
-                            Log.d(TAG, "DISK PUT:  " + cachePath);
+                            Log.d(TAG, "DISK PUT:   " + cachePath);
                             File file = new File(mCacheDir, cachePath.toString());
                             FileOutputStream stream = null;
                             try {

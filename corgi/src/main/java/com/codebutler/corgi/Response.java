@@ -1,7 +1,5 @@
 package com.codebutler.corgi;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.io.OutputStream;
 import java.util.Date;
 
@@ -61,7 +59,7 @@ public abstract class Response<T> {
     }
 
     public void write(OutputStream stream) throws Exception {
-        throw new NotImplementedException();
+        throw new IllegalStateException("not implemented");
     }
 
     public boolean isValid() {

@@ -3,6 +3,8 @@ package com.codebutler.corgi;
 import java.io.InputStream;
 
 public abstract class Request<T> {
+    private boolean mIgnoreCache;
+
     public abstract void fetch(RequestCallback<T> callback);
 
     public CachePath getCachePath() {
@@ -11,5 +13,13 @@ public abstract class Request<T> {
 
     public Response<T> readResponse(InputStream stream) throws Exception {
         return null;
+    }
+
+    public void setIgnoreCache(boolean ignoreCache) {
+        mIgnoreCache = ignoreCache;
+    }
+
+    public boolean ignoreCache() {
+        return mIgnoreCache;
     }
 }
