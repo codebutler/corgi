@@ -17,25 +17,27 @@ import java.io.OutputStream;
 import java.util.Date;
 
 public class BitmapRequest extends Request<Bitmap> {
-    private final HttpClient mHttpClient;
-    private final String     mUrl;
-    private final CachePath  mCachePath;
+    private final String    mUrl;
+    private final CachePath mCachePath;
 
-    public BitmapRequest(HttpClient httpClient, String url) {
-        mHttpClient = httpClient;
-        mUrl        = url;
-        mCachePath  = new CachePath("bitmap", mUrl);
+    private static HttpClient sHttpClient;
+    public static void setHttpClient(HttpClient client) {
+        sHttpClient = client;
     }
 
-    public BitmapRequest(HttpClient httpClient, String url, CachePath cachePath) {
-        mHttpClient = httpClient;
+    public BitmapRequest(String url) {
+        mUrl       = url;
+        mCachePath = new CachePath("bitmap", mUrl);
+    }
+
+    public BitmapRequest(String url, CachePath cachePath) {
         mUrl        = url;
         mCachePath  = cachePath;
     }
 
     @Override
     public void fetch(final RequestCallback<Bitmap> callback) {
-        new BitmapDownloaderTask(mHttpClient, (String) mUrl) {
+        new BitmapDownloaderTask(sHttpClient, (String) mUrl) {
             @Override
             protected void onPostExecute(TaskResult<Bitmap> result) {
                 if (result.success()) {
