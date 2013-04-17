@@ -19,6 +19,7 @@ import java.util.Date;
 public class BitmapRequest extends Request<Bitmap> {
     private final String    mUrl;
     private final CachePath mCachePath;
+    private final CachePolicy mCachePolicy;
 
     private static HttpClient sHttpClient;
     public static void setHttpClient(HttpClient client) {
@@ -26,13 +27,17 @@ public class BitmapRequest extends Request<Bitmap> {
     }
 
     public BitmapRequest(String url) {
-        mUrl       = url;
-        mCachePath = new CachePath("bitmap", mUrl);
+        this(url, new CachePath("bitmap", url));
     }
 
     public BitmapRequest(String url, CachePath cachePath) {
-        mUrl        = url;
-        mCachePath  = cachePath;
+        this(url, cachePath, null);
+    }
+
+    public BitmapRequest(String url, CachePath cachePath, CachePolicy cachePolicy) {
+        mUrl         = url;
+        mCachePath   = cachePath;
+        mCachePolicy = cachePolicy;
     }
 
     @Override
@@ -41,9 +46,9 @@ public class BitmapRequest extends Request<Bitmap> {
             @Override
             protected void onPostExecute(TaskResult<Bitmap> result) {
                 if (result.success()) {
-                    callback.onComplete(new Response(mUrl, result.getObject()));
+                    callback.onComplete(new Response(mUrl, result.getObject(), mCachePolicy));
                 } else {
-                    callback.onComplete(new Response(mUrl, result.getException()));
+                    callback.onComplete(new Response(mUrl, result.getException(), mCachePolicy));
                 }
             }
         }.execute();
@@ -67,25 +72,29 @@ public class BitmapRequest extends Request<Bitmap> {
 
         Bitmap    bitmap = (buffer       != null) ? BitmapFactory.decodeByteArray(buffer, 0, buffer.length) : null;
         Exception error  = (errorMessage != null) ? new Exception(errorMessage)                             : null;
-        return new Response(mUrl, date, bitmap, error);
+        return new Response(mUrl, date, bitmap, error, mCachePolicy);
     }
 
     public static class Response extends com.codebutler.corgi.Response<Bitmap> {
         private final String mUrl;
+        private final CachePolicy mCachePolicy;
 
-        private Response(String url, Bitmap bitmap) {
+        private Response(String url, Bitmap bitmap, CachePolicy cachePolicy) {
             super(bitmap);
-            mUrl = url;
+            mUrl         = url;
+            mCachePolicy = cachePolicy;
         }
 
-        private Response(String url, Exception error) {
+        private Response(String url, Exception error, CachePolicy cachePolicy) {
             super(error);
-            mUrl = url;
+            mUrl         = url;
+            mCachePolicy = cachePolicy;
         }
 
-        private Response(String url, Date date, Bitmap bitmap, Exception error) {
+        private Response(String url, Date date, Bitmap bitmap, Exception error, CachePolicy cachePolicy) {
             super(date, bitmap, error);
-            mUrl = url;
+            mUrl         = url;
+            mCachePolicy = cachePolicy;
         }
 
         public String getUrl() {
@@ -125,10 +134,14 @@ public class BitmapRequest extends Request<Bitmap> {
 
         @Override
         public CachePolicy getCachePolicy() {
-            return new CachePolicy.Builder()
-                .maxAge(1800000)
-                .cacheErrors(true)
-                .build();
+            if (mCachePolicy != null) {
+                return mCachePolicy;
+            } else {
+                return new CachePolicy.Builder()
+                    .maxAge(1800000)
+                    .cacheErrors(true)
+                    .build();
+            }
         }
     }
 

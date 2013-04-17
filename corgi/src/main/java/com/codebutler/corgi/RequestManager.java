@@ -112,6 +112,7 @@ public class RequestManager {
     }
 
     public void removeCache(final CachePath cachePath) {
+        Log.d(TAG, "removeCache: " + cachePath);
         synchronized (mCache) {
             for (String key : mCache.snapshot().keySet()) {
                 if (key.startsWith(cachePath.toString())) {
