@@ -5,17 +5,11 @@ public class CachePolicy {
     public static final CachePolicy FOREVER  = new CachePolicy(Long.MAX_VALUE);
 
     public static class Builder {
-        private boolean mCacheErrors  = false;
         private long    mMaxAge       = 0;
         private boolean mKeepInMemory = true;
 
         public Builder maxAge(long maxAge) {
             mMaxAge = maxAge;
-            return this;
-        }
-
-        public Builder cacheErrors(boolean cacheErrors) {
-            mCacheErrors = cacheErrors;
             return this;
         }
 
@@ -25,30 +19,24 @@ public class CachePolicy {
         }
 
         public CachePolicy build() {
-            return new CachePolicy(mMaxAge, mCacheErrors, mKeepInMemory);
+            return new CachePolicy(mMaxAge, mKeepInMemory);
         }
     }
 
     private final long    mMaxAge;
-    private final boolean mCacheErrors;
     private final boolean mKeepInMemory;
 
     public CachePolicy(long maxAge) {
-        this(maxAge, false, true);
+        this(maxAge, true);
     }
 
-    CachePolicy(long maxAge, boolean cacheErrors, boolean keepInMemory) {
+    CachePolicy(long maxAge, boolean keepInMemory) {
         mMaxAge       = maxAge;
-        mCacheErrors  = cacheErrors;
         mKeepInMemory = keepInMemory;
     }
 
     public long getMaxAge() {
         return mMaxAge;
-    }
-
-    public boolean shouldCacheErrors() {
-        return mCacheErrors;
     }
 
     public boolean shouldKeepInMemory() {

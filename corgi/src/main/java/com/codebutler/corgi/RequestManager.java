@@ -227,7 +227,7 @@ public class RequestManager {
                     @Override
                     @SuppressWarnings("unchecked")
                     public void onExtraResponse(CachePath cachePath, Response response) {
-                        if (response.success() || response.getCachePolicy().shouldCacheErrors()) {
+                        if (response.success()) {
                             putMemCache(cachePath, response);
                             putDiskCache(cachePath, response);
                         }
@@ -235,7 +235,7 @@ public class RequestManager {
 
                     @Override
                     public void onComplete(final Response<T> response) {
-                        if (response.success() || response.getCachePolicy().shouldCacheErrors()) {
+                        if (response.success()) {
                             putMemCache(request.getCachePath(), response);
                             putDiskCache(request.getCachePath(), response);
                         }

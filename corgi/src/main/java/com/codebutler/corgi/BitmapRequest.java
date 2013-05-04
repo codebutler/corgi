@@ -139,7 +139,6 @@ public class BitmapRequest extends Request<Bitmap> {
             } else {
                 return new CachePolicy.Builder()
                     .maxAge(1800000)
-                    .cacheErrors(true)
                     .build();
             }
         }
