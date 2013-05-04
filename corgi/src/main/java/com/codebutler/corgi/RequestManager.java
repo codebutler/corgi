@@ -131,6 +131,18 @@ public class RequestManager {
         }
     }
 
+    public void clearCache() {
+        synchronized (mCache) {
+            mCache.evictAll();
+        }
+        File[] files = mCacheDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+    }
+
     @Subscribe
     public void onRequest(Request request) {
       fetch(request);
