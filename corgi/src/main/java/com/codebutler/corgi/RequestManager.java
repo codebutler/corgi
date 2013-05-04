@@ -294,7 +294,7 @@ public class RequestManager {
 
     private <T> void postResponse(Request<T> request, Response<T> response) {
         if (!response.success()) {
-            Log.e(TAG, String.format("Request failed (%s)", request), response.getError());
+            Log.e(TAG, String.format("Request failed (%s, %s)", request.getClass().getName(), request.getCachePath().toString()), response.getError());
         }
         mBus.post(response);
         markRequestComplete(request);

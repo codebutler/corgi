@@ -11,6 +11,9 @@ public class CachePath {
     public CachePath(Object... parts) {
         mParts = new String[parts.length];
         for (int i = 0; i < parts.length; i++) {
+            if (parts[i] == null) {
+                throw new IllegalArgumentException("Cache path cannot contain null components.");
+            }
             mParts[i] = encodeFileName(parts[i].toString());
         }
     }

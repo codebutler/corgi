@@ -35,6 +35,9 @@ public class BitmapRequest extends Request<Bitmap> {
     }
 
     public BitmapRequest(String url, CachePath cachePath, CachePolicy cachePolicy) {
+        if (url == null || url.length() == 0) {
+            throw new IllegalArgumentException("url cannot be blank");
+        }
         mUrl         = url;
         mCachePath   = cachePath;
         mCachePolicy = cachePolicy;
