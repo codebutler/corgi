@@ -70,8 +70,6 @@ public void onMyResponse(MyRequest.Response response) {
 There are also a few helper classes:
 
 * `GsonRequest`
-* `BitmapRequest`
-* `AsyncImageView`
 
 License
 =======
