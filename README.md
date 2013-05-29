@@ -6,9 +6,9 @@ A simple async request/response framework for Android built on [Otto](http://squ
 Goals:
 
 * Decouple async callbacks from the activity/fragment.
-* Transparent memory/disk caching.
+* Transparent memory/disk caching (using [DiskLruCache](https://github.com/JakeWharton/DiskLruCache).
 * Automatic retry, even if app crashes (using [Tape](http://square.github.com/tape/)).
-* Not HTTP specific.
+* Not HTTP specific, but works great with [Retrofit](https://github.com/square/retrofit).
 
 Status
 ------

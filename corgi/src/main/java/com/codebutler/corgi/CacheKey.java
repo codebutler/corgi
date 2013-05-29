@@ -16,33 +16,21 @@
 
 package com.codebutler.corgi;
 
-public class SimpleTaskResult<T> {
-    private final T mObject;
-    private final Exception mException;
+import android.text.TextUtils;
 
-    public SimpleTaskResult(T object) {
-        mObject    = object;
-        mException = null;
-    }
-
-    public SimpleTaskResult(Exception exception) {
-        if (exception == null) {
-            throw new IllegalArgumentException("exception may not be null");
+public abstract class CacheKey {
+    public static String with(Object... parts) {
+        String[] encodedParts = new String[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            if (parts[i] == null) {
+                throw new IllegalArgumentException("Cache key cannot contain null components.");
+            }
+            encodedParts[i] = encodeFileName(parts[i].toString());
         }
-
-        mException = exception;
-        mObject    = null;
+        return TextUtils.join("__", encodedParts);
     }
 
-    public T getObject() {
-        return mObject;
-    }
-
-    public Exception getException() {
-        return mException;
-    }
-
-    public boolean success() {
-        return (mException == null);
+    private static String encodeFileName(String name) {
+        return name.replaceAll("[^a-z0-9_-]", "_");
     }
 }

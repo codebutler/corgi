@@ -1,0 +1,17 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+  mavenCentral()
+}
+
+def android_jar = new File(System.getenv('ANDROID_HOME'), '/platforms/android-17/android.jar')
+
+dependencies {
+  compile files(android_jar)
+  compile 'com.google.code.gson:gson:2.2.4'
+  compile 'com.jakewharton:disklrucache:2.0.1'
+}
+
+group   = 'com.codebutler.corgi'
+version = '0.0.1-SNAPSHOT'
