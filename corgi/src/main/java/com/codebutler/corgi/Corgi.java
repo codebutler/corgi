@@ -64,8 +64,8 @@ public class Corgi {
     /** The response dispatcher. */
     private ResponseDispatcher mResponseDispatcher;
 
-    /** The cache triage queue. */
-    private final PriorityBlockingQueue<Request> mCacheQueue =
+    /** The disk cache triage queue. */
+    private final PriorityBlockingQueue<Request> mDiskCacheQueue =
         new PriorityBlockingQueue<Request>();
 
     /** The queue of requests that need to be fetched. */
@@ -93,11 +93,11 @@ public class Corgi {
         // Make sure any currently running dispatchers are stopped.
         stop();
 
-        // Create the cache dispatcher and start it.
-        mDiskCacheDispatcher = new DiskCacheDispatcher(this, mCacheQueue, mRequestQueue, mDiskCache);
+        // Create the disk cache dispatcher and start it.
+        mDiskCacheDispatcher = new DiskCacheDispatcher(this, mDiskCacheQueue, mRequestQueue, mDiskCache);
         mDiskCacheDispatcher.start();
 
-        mRequestDispatcher = new RequestDispatcher(mRequestQueue, mDiskCache, mResponseQueue);
+        mRequestDispatcher = new RequestDispatcher(mRequestQueue, mResponseQueue);
         mRequestDispatcher.start();
 
         mResponseDispatcher = new ResponseDispatcher(this, mResponseQueue, mMemoryCache, mDiskCache);
@@ -146,7 +146,7 @@ public class Corgi {
                 // Insert 'null' queue for this cacheKey, indicating there is now a request in
                 // flight.
                 mWaitingRequests.put(cacheKey, null);
-                mCacheQueue.add(request);
+                mDiskCacheQueue.add(request);
             }
         }
     }
@@ -157,6 +157,15 @@ public class Corgi {
             mDiskCache.remove(cacheKey);
         } catch (IOException e) {
             throw new RuntimeException("Error removing entry from disk cache", e);
+        }
+    }
+
+    public void clearCache() {
+        try {
+            mMemoryCache.evictAll();
+            mDiskCache.delete();
+        } catch (IOException ex) {
+            throw new RuntimeException("Error clearing disk cache", ex);
         }
     }
 
@@ -191,7 +200,7 @@ public class Corgi {
                         waitingRequests.size(), cacheKey));
                     // Process all queued up requests. They won't be considered as in flight, but
                     // that's not a problem as the cache has been primed by 'request'.
-                    mCacheQueue.addAll(waitingRequests);
+                    mDiskCacheQueue.addAll(waitingRequests);
                 }
             }
         }

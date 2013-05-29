@@ -21,7 +21,6 @@ package com.codebutler.corgi;
 
 import android.os.Process;
 import android.util.Log;
-import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -31,18 +30,14 @@ public class RequestDispatcher extends Thread {
     /** The queue of requests to service. */
     private final BlockingQueue<Request> mQueue;
 
-    /** The cache to write to. */
-    private final DiskLruCache mCache;
-
-    /** For posting responses and errors. */
+    /** The queue of responses to be cached and delivered. */
     private final BlockingQueue<RequestResponse> mResponseQueue;
 
     /** Used for telling us to die. */
     private volatile boolean mQuit = false;
 
-    public RequestDispatcher(BlockingQueue<Request> queue, DiskLruCache cache, BlockingQueue<RequestResponse> responseQueue) {
+    public RequestDispatcher(BlockingQueue<Request> queue, BlockingQueue<RequestResponse> responseQueue) {
         mQueue = queue;
-        mCache = cache;
         mResponseQueue = responseQueue;
     }
 
