@@ -1,14 +1,14 @@
 Corgi
 =====
 
-A simple async request/response framework for Android built on [Otto](http://square.github.com/otto/).
+A simple async request/response framework for Android.
 
 Goals:
 
-* Decouple async callbacks from the activity/fragment.
-* Transparent memory/disk caching (using [DiskLruCache](https://github.com/JakeWharton/DiskLruCache).
-* Automatic retry, even if app crashes (using [Tape](http://square.github.com/tape/)).
-* Not HTTP specific, but works great with [Retrofit](https://github.com/square/retrofit).
+* Decouple async callbacks from the activity/fragment using [Otto](http://square.github.com/otto/).
+* Transparent memory caching using [LruCache](http://developer.android.com/reference/android/support/v4/util/LruCache.html) and disk caching using [DiskLruCache](https://github.com/JakeWharton/DiskLruCache).
+* Automatic retry, even if app crashes using [Tape](http://square.github.com/tape/) (* not yet implemented).
+* Not HTTP specific, but work great with [Retrofit](https://github.com/square/retrofit).
 
 Status
 ------
@@ -18,9 +18,21 @@ Code is kind of a mess, no tests yet, not all features implemented, no samples, 
 Usage
 -----
 
+Initialize corgi (in your Application subclass):
+
+```
+mCorgi = new Corgi(this, new Corgi.Listener() {
+    @Override
+    public void onResponse(Response response) {
+        // Handle response
+    }
+});
+mCorgi.start();
+```
+
 Create a class for each type of request:
 
-```java
+```
 public class MyRequest extends Request<MyObj> {
     @Override
     public void fetch(final RequestCallback<MyObj> callback) {
@@ -45,14 +57,50 @@ public class MyRequest extends Request<MyObj> {
 }
 ```
 
+Tell corgi to go fetch!
 
-In your fragment:
+```
+mCorgi.fetch(new MyRequest());
+```
 
-```java
+There are also a few helper classes:
+
+* `GsonRequest`/`GsonResponse` - Automatically handles caching of GSON objects.
+
+
+Usage with Otto
+---------------
+
+Corgi is really intended to be used with Otto.
+
+Pass responses from corgi onto otto:
+
+```
+return new Corgi(mAppContext, new Corgi.Listener() {
+    @Override
+    public void onResponse(Response response) {
+        bus.post(response);
+    }
+});
+```
+
+Pass any requests from Otto onto Corgi (put this your Application subclass):
+
+```
+@Subscribe
+public void onRequest(Request request) {
+    mCorgi.fetch(request);
+}
+```
+
+Then in your fragments:
+
+```
 @Override
 public void onResume() {
     super.onResume();
     mBus.register(this);
+    
     mBus.post(new MyRequest());
 }
 
@@ -66,10 +114,6 @@ public void onMyResponse(MyRequest.Response response) {
     // Update UI
 }
 ```
-
-There are also a few helper classes:
-
-* `GsonRequest`
 
 License
 =======
