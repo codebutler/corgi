@@ -27,7 +27,9 @@ public abstract class CacheKey {
             }
             encodedParts[i] = encodeFileName(parts[i].toString());
         }
-        return TextUtils.join("__", encodedParts);
+        // FIXME: Truncating key may result in collisions. Rethink this later.
+        String key = TextUtils.join("__", encodedParts);
+        return key.substring(0, Math.min(key.length(), 64));
     }
 
     private static String encodeFileName(String name) {
