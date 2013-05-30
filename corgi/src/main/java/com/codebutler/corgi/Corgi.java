@@ -24,7 +24,6 @@ package com.codebutler.corgi;
 
 import android.content.Context;
 import android.util.Log;
-import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -53,7 +52,7 @@ public class Corgi {
     private final LruCache<String, Response> mMemoryCache;
 
     /** The disk cache. */
-    private final DiskLruCache mDiskCache;
+    private DiskCache mDiskCache;
 
     /** The disk cache dispatcher. */
     private DiskCacheDispatcher mDiskCacheDispatcher;
@@ -85,7 +84,7 @@ public class Corgi {
 
     public Corgi(Context context, Listener listener) {
         mMemoryCache = new LruCache<String, Response>(Utils.calculateMemoryCacheSize(context));
-        mDiskCache   = Utils.openDiskLruCache(context);
+        mDiskCache   = new DiskCache(context);
         mListener    = listener;
     }
 
@@ -163,7 +162,7 @@ public class Corgi {
     public void clearCache() {
         try {
             mMemoryCache.evictAll();
-            mDiskCache.delete();
+            mDiskCache.clear();
         } catch (IOException ex) {
             throw new RuntimeException("Error clearing disk cache", ex);
         }

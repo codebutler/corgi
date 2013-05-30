@@ -34,8 +34,8 @@ public class DiskCacheDispatcher extends Thread {
     /** The queue of request going out to the network. */
     private final BlockingQueue<Request> mRequestQueue;
 
-    /** The cache to read from. */
-    private final DiskLruCache mCache;
+    /** The disk cache to read from. */
+    private final DiskCache mCache;
 
     /** For posting responses. */
     private final Corgi mCorgi;
@@ -51,7 +51,7 @@ public class DiskCacheDispatcher extends Thread {
      * @param requestQueue Queue to post requests that require network to
      * @param cache Cache to use for resolution
      */
-    public DiskCacheDispatcher(Corgi corgi, BlockingQueue<Request> cacheQueue, BlockingQueue<Request> requestQueue, DiskLruCache cache) {
+    public DiskCacheDispatcher(Corgi corgi, BlockingQueue<Request> cacheQueue, BlockingQueue<Request> requestQueue, DiskCache cache) {
         mCorgi = corgi;
         mCacheQueue = cacheQueue;
         mRequestQueue = requestQueue;

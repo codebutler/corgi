@@ -33,9 +33,9 @@ public class ResponseDispatcher extends Thread {
 
     private final PriorityBlockingQueue<RequestResponse> mResponseQueue;
     private final LruCache<String, Response> mMemoryCache;
-    private final DiskLruCache mDiskCache;
+    private final DiskCache mDiskCache;
 
-    public ResponseDispatcher(Corgi corgi, PriorityBlockingQueue<RequestResponse> responseQueue, LruCache<String, Response> memoryCache, DiskLruCache diskCache) {
+    public ResponseDispatcher(Corgi corgi, PriorityBlockingQueue<RequestResponse> responseQueue, LruCache<String, Response> memoryCache, DiskCache diskCache) {
         mCorgi = corgi;
         mResponseQueue = responseQueue;
         mMemoryCache = memoryCache;
